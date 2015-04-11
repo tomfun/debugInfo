@@ -1,3 +1,6 @@
+if (typeof jQuery != 'function') {
+    alert('Debug info require jQuery, did your forgot leading slash');
+}
 jQuery(function ($) {
     $('head').append('<link rel="stylesheet" type="text/css" href="/debug-performance.css" media="all" />');
     var tooltip = $('<div class="debug-info-tooltip" style="position: absolute;"></div>').appendTo($('body'));
