@@ -6,7 +6,7 @@ If you tired use some combination like this
 var_dump($some);
 die();
 ```
-And want some more comfortable, or you can`t use debugger, and still want to see some data intermediate data when using Ajax this for You.
+And want some more comfortable, or you can`t use debugger, and still want to see some intermediate data when using Ajax, this for You.
 ### Installation ###
 - Copy all files except docs to your magento project
 - Login (and maybe relogin) to admin panel
@@ -22,7 +22,7 @@ Then go to web browser and see there
 ![Image of output](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/80fb3b2a91.jpg)
 
 In this example I use this configuration for module:
-"Include output force, if get this param" seted to "?showInfog"
+"Force Include output, if get this param" seted to "?showInfog"
 in admin section
 
 #### var_dump ####
@@ -73,6 +73,7 @@ you\`ll see list of connection (requests) to site.
 Browse to link you need then see all data like in "Frontend" mode.
 This mode require magento cache, there placed all data, you can clear magento cache this lead to clear debugInfo`s data
 ![Image of output](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/aef08ad78e.png)
+[Result is](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/54a12c01f9.jpg)
 ### Requirements ###
 - Magento (tested only in 1.9)
 - jQuery (and set path to it in cofig, tested in 1.10*)
@@ -97,7 +98,7 @@ server {
     }
 }
 ```
- \- nginx
+ \- nginx,
 ```
 <VirtualHost *:80>
 #
@@ -106,7 +107,7 @@ server {
 	SetEnv MAGE_IS_DEVELOPER_MODE 1  # enable dev mode
 #.......
 ```
-\- apache2
+\- apache2;
 and in index.php type this
 ```php
 //.....
