@@ -4,9 +4,6 @@
         <Tommy_DebugInfo>
             <active>true</active>
             <codePool>local</codePool>
-            <depends>
-                <Brander_Core/>
-            </depends>
         </Tommy_DebugInfo>
     </modules>
 </config>

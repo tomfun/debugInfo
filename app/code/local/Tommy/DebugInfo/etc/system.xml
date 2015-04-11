@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <config>
 	<tabs>
-		<brander translate="label" module="brander_core">
-			<label>Brander</label>
-			<sort_order>2000</sort_order>
-		</brander>
+		<tommy translate="label" module="tommy_debuginfo">
+			<label>Tommy</label>
+			<sort_order>10000</sort_order>
+		</tommy>
 	</tabs>
 	<sections>
-		<brander_core translate="label comment" module="brander_core">
-			<label>Core</label>
-			<tab>brander</tab>
+		<debug_info translate="label comment" module="tommy_debuginfo">
+			<label>Debug Info</label>
+			<tab>tommy</tab>
 			<frontend_type>text</frontend_type>
 			<sort_order>0</sort_order>
 			<show_in_default>1</show_in_default>
@@ -75,7 +75,7 @@
                             <comment><![CDATA[Enable performance log in frontend]]></comment>
                         </out_js>
                         <out_force translate="label">
-                            <label>Include output force, if get this param</label>
+                            <label>Force Include output, if get this param</label>
 							<frontend_type>text</frontend_type>
                             <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
@@ -108,6 +108,6 @@
                     </fields>
                 </debug_info>
 			</groups>
-		</brander_core>
+		</debug_info>
 	</sections>
 </config> 

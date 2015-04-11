@@ -48,16 +48,16 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
     public function __construct() {
         // rewrite magento
         if (property_exists('Mage_Core_Block_Abstract', '_switcher')) {
-            Mage_Core_Block_Abstract::$_switcher = Mage::getStoreConfig('brander_core/debug_info/out_rewrite');
+            Mage_Core_Block_Abstract::$_switcher = Mage::getStoreConfig('debug_info/debug_info/out_rewrite');
         }
         // rewrite magento
         if ($this->getDebugCustomHints() && property_exists('Mage_Core_Block_Abstract', '_switcher')) {
-            Mage_Core_Block_Template::$_switcher = Mage::getStoreConfig('brander_core/debug_info/out_rewrite');
+            Mage_Core_Block_Template::$_switcher = Mage::getStoreConfig('debug_info/debug_info/out_rewrite');
         }
-        $this->_enabledSession = (bool) Mage::getStoreConfig('brander_core/debug_info/save_statistic');
-        $this->_enabledController = (bool) Mage::getStoreConfig('brander_core/debug_info/frontend_controller');
-        $this->_debugCustomHints = (bool) Mage::getStoreConfig('brander_core/debug_info/out_hints');
-        $this->_debugCompareHtml = (bool) Mage::getStoreConfig('brander_core/debug_info/out_compare');
+        $this->_enabledSession = (bool) Mage::getStoreConfig('debug_info/debug_info/save_statistic');
+        $this->_enabledController = (bool) Mage::getStoreConfig('debug_info/debug_info/frontend_controller');
+        $this->_debugCustomHints = (bool) Mage::getStoreConfig('debug_info/debug_info/out_hints');
+        $this->_debugCompareHtml = (bool) Mage::getStoreConfig('debug_info/debug_info/out_compare');
     }
 
     /** @return bool|null */
@@ -239,11 +239,11 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
         if (!empty($this->_performance)) {
-            $showJs = Mage::getStoreConfig('brander_core/debug_info/out_js');
+            $showJs = Mage::getStoreConfig('debug_info/debug_info/out_js');
             /** @var Mage_Core_Helper_Url $helperUrl */
             $helperUrl = Mage::helper('core/url');
             $magentoCurrentUrl = $helperUrl->getCurrentUrl();
-            $paramForce = Mage::getStoreConfig('brander_core/debug_info/out_force');
+            $paramForce = Mage::getStoreConfig('debug_info/debug_info/out_force');
 
             if ($showJs || ($paramForce && strpos($magentoCurrentUrl, $paramForce) !== false)) {
                 $this->viewDebugDataFrontend(self::$_blocksInfo,
@@ -263,7 +263,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             return;
         }
         $data = $session['data'];
-        echo '<html><head><script type="text/javascript" src="' . Mage::getStoreConfig('brander_core/debug_info/jquery')
+        echo '<html><head><script type="text/javascript" src="' . Mage::getStoreConfig('debug_info/debug_info/jquery')
             . '"></script></head><body>';
         echo '<a href="' . Mage::getUrl(self::FRONT_NAME) . '">l i s t</a><hr/>';
         $this->listSessionFrontend(true);
