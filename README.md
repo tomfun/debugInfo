@@ -6,23 +6,23 @@ If you tired use some combination like this
 var_dump($some);
 die();
 ```
-And want some more comfortable, or you can`t use debugger, and still want to see some data intermediate data when using Ajax this for You.
+And want some more comfortable, or you can`t use debugger, and still want to see some intermediate data when using Ajax, this for You.
 ### Installation ###
 - Copy all files except docs to your magento project
-- Login (and maybe relogin) to admin panel
+- Login (and maybe relogin) into admin panel
 - Configure this in your own way (based on your security needs or habits) Magento Admin -> System -> Configuration -> TOMMY -> Debug Info -> Custom Debug Info Settings 
 
 ### Usage ###
 #### echo ####
-In your code type some like this:
+In your code put some like this:
 ```php
 Tommy_DebugInfo_Helper_Data::getMe()->addDebugOutput('Message section', 'My debug mess :)');
 ```
-Then go to web browser and see there
+Then go to web browser and you`ll see there
 ![Image of output](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/80fb3b2a91.jpg)
 
 In this example I use this configuration for module:
-"Include output force, if get this param" seted to "?showInfog"
+"Force Include output, if get this param" set to "?showInfog"
 in admin section
 
 #### var_dump ####
@@ -54,7 +54,7 @@ $performance->addPerformanceLog('sleep 5 sec', 'finish');
 ![Image of output](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/c0a66ccd61.jpg)
 
 #### Compare cached blocks with real render ####
-To check block caching is correct, you can use option in config part
+To check *block caching is correct*, you can use option in config part
 ### Work modes ###
 - Frontend
 - Special url postfix
@@ -73,15 +73,16 @@ you\`ll see list of connection (requests) to site.
 Browse to link you need then see all data like in "Frontend" mode.
 This mode require magento cache, there placed all data, you can clear magento cache this lead to clear debugInfo`s data
 ![Image of output](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/aef08ad78e.png)
+[Result is](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/54a12c01f9.jpg)
 ### Requirements ###
 - Magento (tested only in 1.9)
-- jQuery (and set path to it in cofig, tested in 1.10*)
+- jQuery (and set path to it in cofiguration, tested in 1.10*)
 - Browser (tested in Chrome and Mozilla)
 - PHP (tested in 5.5, must work in 5.3)
 
 #### Recomend ####
 I like use the module with [Cache Viewer](https://github.com/meanbee/Meanbee_CacheViewer)
-I offer use dev environment in Magento:
+, also I offer use development environment in Magento:
 ```
 server {
 # .....
@@ -97,7 +98,7 @@ server {
     }
 }
 ```
- \- nginx
+ \- nginx,
 ```
 <VirtualHost *:80>
 #
@@ -106,14 +107,14 @@ server {
 	SetEnv MAGE_IS_DEVELOPER_MODE 1  # enable dev mode
 #.......
 ```
-\- apache2
+\- apache2;
 and in index.php type this
 ```php
 //.....
 require_once $mageFilename;
 if (isset($_SERVER['MAGE_IS_DEVELOPER_MODE'])) {
     Mage::setIsDeveloperMode(true);
-    Varien_Profiler::enable(); # from profiler debugInfo get data
+    Varien_Profiler::enable(); // from profiler debugInfo get data
     ini_set('display_errors', 1);
 }
 //.....
