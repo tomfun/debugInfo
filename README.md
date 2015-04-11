@@ -1,4 +1,4 @@
-# debugInfo lightweight module for Magento #
+# debugInfo - lightweight module for Magento #
 
 ### Alternative way to control your web application: debug, dump variables and measure performance ###
 If you tired use some combination like this
@@ -8,9 +8,9 @@ die();
 ```
 And want some more comfortable, or you can`t use debugger, and still want to see some data intermediate data when using Ajax this for You.
 ### Installation ###
-- Copy app directory to your magento project
+- Copy all files except docs to your magento project
 - Login (and maybe relogin) to admin panel
-- Configure this in your own way (based on your security needs or habits) Magento Admin -> System -> Configuration -> Brander -> Core -> Custom Debug Info Settings 
+- Configure this in your own way (based on your security needs or habits) Magento Admin -> System -> Configuration -> TOMMY -> Debug Info -> Custom Debug Info Settings 
 
 ### Usage ###
 #### echo ####
@@ -72,9 +72,49 @@ In browser special page:
 you\`ll see list of connection (requests) to site.
 Browse to link you need then see all data like in "Frontend" mode.
 This mode require magento cache, there placed all data, you can clear magento cache this lead to clear debugInfo`s data
-
+![Image of output](https://github.com/tomfun/debugInfo/blob/master/docs/imgs/aef08ad78e.png)
 ### Requirements ###
 - Magento (tested only in 1.9)
 - jQuery (and set path to it in cofig, tested in 1.10*)
-- Browesr (tested in Chrome and Mozilla)
+- Browser (tested in Chrome and Mozilla)
 - PHP (tested in 5.5, must work in 5.3)
+
+#### Recomend ####
+I like use the module with [Cache Viewer](https://github.com/meanbee/Meanbee_CacheViewer)
+I offer use dev environment in Magento:
+```
+server {
+# .....
+    server_name site.test www.site.test;
+    root /var/www/site;
+    location / {
+        try_files $uri /index.php$is_args$args;
+    }
+# .....
+    location ~ \.php$ {
+       include fastcgi_common;
+       fastcgi_param  MAGE_IS_DEVELOPER_MODE 1; # enable dev mode
+    }
+}
+```
+ \- nginx
+```
+<VirtualHost *:80>
+#
+	ServerName site.test
+	ServerAlias www.site.test
+	SetEnv MAGE_IS_DEVELOPER_MODE 1  # enable dev mode
+#.......
+```
+\- apache2
+and in index.php type this
+```php
+//.....
+require_once $mageFilename;
+if (isset($_SERVER['MAGE_IS_DEVELOPER_MODE'])) {
+    Mage::setIsDeveloperMode(true);
+    Varien_Profiler::enable(); # from profiler debugInfo get data
+    ini_set('display_errors', 1);
+}
+//.....
+```
