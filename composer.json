@@ -1,5 +1,5 @@
 {
-  "name": "tommy/debugInfo",
+  "name": "tommy/debug-info",
   "description": "Magento module for convenient debugging and performance information",
   "keywords": ["Varien_Profiler", "var_dump", "cache", "debug", "Magento", "Block"],
   "type":"magento-module",
