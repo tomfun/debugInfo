@@ -1,0 +1,3 @@
+app/code/local/Mage/* app/code/local/Mage
+app/code/local/Tommy/* app/code/local/Tommy
+app/etc/modules/Tommy_DebugInfo.xml app/etc/modules/Tommy_DebugInfo.xml
