@@ -1,0 +1,28 @@
+{
+  "name": "tommy/debugInfo",
+  "description": "Magento module for convenient debugging and performance information",
+  "keywords": ["Varien_Profiler", "var_dump", "cache", "debug", "Magento", "Block"],
+  "type":"magento-module",
+  "license": "MIT",
+  "version": "1.0",
+  "authors": [
+    {
+      "name": "Grigory Kotov",
+      "email": "tomfun1990@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.0",
+  },
+  "require":{
+    "magento-hackathon/magento-composer-installer":"*"
+  },
+  "extra":{
+    "map":[
+      ["app/etc/modules/Tommy_DebugInfo.xml", "app/etc/modules/Tommy_DebugInfo.xml"],
+      ["app/code/local/Tommy/", "app/code/local/Tommy/"],
+      ["app/code/local/Mage/", "app/code/local/Mage/"]
+    ]
+  },
+  "minimum-stability": "stable"
+}
