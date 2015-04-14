@@ -9,7 +9,7 @@
                             <config>
                                 <children>
                                     <debug_info>
-                                        <title>Glazik Core</title>
+                                        <title>Debug Info</title>
                                     </debug_info>
                                 </children>
                             </config>
