@@ -25,6 +25,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
     protected $_directOutput      = array();
     protected $_enabledController = null;
     protected $_enabledSession    = null;
+    protected $_enabledAdminArea  = null;
     protected $_debugCompareHtml  = null;
     protected $_debugCustomHints  = null;
     protected $_sessionId         = null;
@@ -45,6 +46,9 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         return self::$_me;
     }
 
+    /**
+     * Construct helper, initialize configs
+     */
     public function __construct() {
         // rewrite magento
         if (property_exists('Mage_Core_Block_Abstract', '_switcher')) {
@@ -58,6 +62,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         $this->_enabledController = (bool) Mage::getStoreConfig('debug_info/debug_info/frontend_controller');
         $this->_debugCustomHints = (bool) Mage::getStoreConfig('debug_info/debug_info/out_hints');
         $this->_debugCompareHtml = (bool) Mage::getStoreConfig('debug_info/debug_info/out_compare');
+        $this->_enabledAdminArea = (bool) Mage::getStoreConfig('debug_info/debug_info/admin_area');
     }
 
     /** @return bool|null */
@@ -72,6 +77,9 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
 
     /** @return bool|null */
     public function getDebugCustomHints() {
+        if (Mage::app()->getStore()->isAdmin()) {
+            return $this->_enabledAdminArea && $this->_debugCustomHints;
+        }
         return $this->_debugCustomHints;
     }
 
@@ -95,6 +103,10 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         $this->_performance[$unique][$label] = $microTime;
     }
 
+    /**
+     * @param null $code
+     * @return mixed
+     */
     public function translateJsonError($code = null) {
         if ($code === null) {
             $code = json_last_error_msg();
@@ -245,7 +257,13 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             $magentoCurrentUrl = $helperUrl->getCurrentUrl();
             $paramForce = Mage::getStoreConfig('debug_info/debug_info/out_force');
 
-            if ($showJs || ($paramForce && strpos($magentoCurrentUrl, $paramForce) !== false)) {
+            $showInFrontend = true;
+            if (Mage::app()->getStore()->isAdmin()) {
+                $showInFrontend = $this->_enabledAdminArea;
+            }
+            $showInFrontend = $showInFrontend
+                && ($showJs || ($paramForce && strpos($magentoCurrentUrl, $paramForce) !== false));
+            if ($showInFrontend) {
                 $this->viewDebugDataFrontend(self::$_blocksInfo,
                                              $this->_performance,
                                              $this->_debugOutput,
@@ -256,7 +274,17 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         $this->flushSessionData();
     }
 
+    /**
+     * Show data from 'session'
+     *
+     * @param $id
+     */
     public function viewSessionFrontend($id) {
+        if (Mage::app()->getStore()->isAdmin()) {
+            if (!$this->_enabledAdminArea) {
+                return;
+            }
+        }
         $session = $this->loadFromCache(self::SESSION_KEY . $id);
         if (!$session) {
             echo 'empty';
@@ -306,6 +334,13 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         echo $html;
     }
 
+    /**
+     * @param $blocksId
+     * @param $performance
+     * @param $log
+     * @param $direct
+     * @param $timers
+     */
     public function viewDebugDataFrontend($blocksId, $performance, $log, $direct, $timers) {
         echo '<script type="text/javascript">debugInfoIds = '
             . Zend_Json::encode($blocksId) . ';'
