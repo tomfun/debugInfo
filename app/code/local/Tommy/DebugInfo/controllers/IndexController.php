@@ -33,7 +33,7 @@ class Tommy_DebugInfo_IndexController extends Mage_Core_Controller_Front_Action
         if (!$helper->getEnabledSession()) {
             echo ' enable session in admin panel';
         }
-        $id = (int)$this->getRequest()->getParam('sessionId');
+        $id = floatval($this->getRequest()->getParam('sessionId'));
         if ($id < 0) {
             echo 'not valid id';
         }

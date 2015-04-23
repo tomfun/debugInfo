@@ -179,7 +179,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
                 //                    }
                 //                }
                 //                $this->_sessionId = $max + 1;
-                $this->_sessionId = time();
+                $this->_sessionId = microtime(true);
             }
         }
         return $this->_sessionId;
@@ -215,6 +215,17 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             'url'  => $modelUrl->getCurrentUrl(),
             'user' => $user,
         );
+        if ($data['timers'] && isset($data['timers']['mage']['sum'])) {
+            $session['max-time'] = $data['timers']['mage']['sum'];
+        } elseif ($this->_performance) {
+            $perfMax = -1;
+            foreach ($this->_performance as $perf) {
+                $perfBegin = min($perf);
+                $perfMax = max(max($perf) - $perfBegin, $perfMax);
+            }
+            $session['max-time'] = $perfMax;
+        }
+
         $sessions = $this->loadFromCache(self::SESSION_KEY);
         if (!$sessions || !count($sessions)) {
             $sessions = array();
@@ -277,7 +288,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Show data from 'session'
      *
-     * @param $id
+     * @param float $id
      */
     public function viewSessionFrontend($id) {
         if (Mage::app()->getStore()->isAdmin()) {
@@ -287,7 +298,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         }
         $session = $this->loadFromCache(self::SESSION_KEY . $id);
         if (!$session) {
-            echo 'empty';
+            echo 'empty (maybe you had clear Magento cache)';
             return;
         }
         $data = $session['data'];
@@ -316,20 +327,26 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         }
         $html = '';
         if (!$disableHtml) {
-            $html = '<html><body>';
+            $html = '<html><head><link rel="stylesheet" type="text/css" href="/debug-performance.css" media="all"></head><body>';
         }
-        $html .= '<table>';
+        $html .= '<div id="debug-info-content-list-container"><table class="debug-info-content-list">';
+        $html .= '<thead><tr>';
+        $html .= '<th>link</th><th>user</th><th>name/vis</th><th>captured time</th><th>request date/time</th>';
+        $html .= '</tr></thead>';
         $preUrl = self::FRONT_NAME . '/index/' . self::FRONT_VIEW_ACTION_NAME;
         foreach ($sessions as $session) {
             $url = Mage::getUrl($preUrl, array('sessionId' => $session['id']));
-            $html .= '<tr><td><a href="' . $url . '">'
-                . $session['name'] . ' : <span>'
-                . $session['url'] . '</span> <span>'
-                . $session['user'] . '</span></td></tr>';
+            $html .= '<tr><td class="large-url"><a href="' . $url . '">'
+                . '<span>' . $session['url'] . '</span></td>'
+                . '<td>' . $session['user'] . '</td>'
+                . '<td>' . $session['name'] . '</td>'
+                . '<td>' . ( isset($session['max-time']) ? $session['max-time'] : ' - ') . '</td>'
+                . '<td>' . date("Y-m-d H:i:s", $session['id']) . '</td>'
+            . '</tr>';
         }
         $html .= '</table>';
         if ($disableHtml) {
-            $html .= '</body></html>';
+            $html .= '</body></html></div>';
         }
         echo $html;
     }

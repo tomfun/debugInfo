@@ -4,7 +4,7 @@
   "keywords": ["Varien_Profiler", "var_dump", "cache", "debug", "Magento", "Block"],
   "type":"magento-module",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "0.1.2",
   "authors": [
     {
       "name": "Grigory Kotov",

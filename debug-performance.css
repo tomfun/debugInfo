@@ -13,6 +13,7 @@ div.debug-info-overall table.debug-info-log-table > thead > tr > td {
     text-align: center;
     font-weight: bold;
 }
+#debug-info-content-list-container table.debug-info-content-list tr:nth-child(even),
 div.debug-info-overall table.collapsible-table tr:nth-child(even),
 div.debug-info-overall table.debug-info-log-table tr:nth-child(even),
 div.debug-info-overall table.debug-info-dump-table tr:nth-child(even) {
@@ -78,4 +79,16 @@ div.debug-info-overall tr.sortable-header td {
     background: -o-linear-gradient(right, transparent , rgba(240,250,255, 1), transparent); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(right, transparent , rgba(240,250,255, 1), transparent); /* For Firefox 3.6 to 15 */
     background: linear-gradient(to right, transparent , rgba(240,250,255, 1), transparent); /* Standard syntax (must be last)  */
+}
+
+table.debug-info-content-list {
+    max-width: 100%;
+}
+table.debug-info-content-list .large-url {
+    max-width: 1024px;
+    word-wrap: break-word;
+}
+#debug-info-content-list-container {
+    max-height: 100%;
+    overflow-y: scroll;
 }
