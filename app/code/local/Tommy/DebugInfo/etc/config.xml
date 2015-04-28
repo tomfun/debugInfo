@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Tommy_DebugInfo>
-            <version>0.1.2</version>
+            <version>0.1.1</version>
         </Tommy_DebugInfo>
     </modules>
     <global>
@@ -11,6 +11,28 @@
                 <class>Tommy_DebugInfo_Helper</class>
             </tommy_debuginfo>
         </helpers>
+        <resources>
+            <Tommy_DebugInfo_Setup>
+                <setup>
+                    <module>Tommy_DebugInfo</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+            </Tommy_DebugInfo_Setup>
+        </resources>
+        <models>
+            <tommy_debuginfo>
+                <class>Tommy_DebugInfo_Model</class>
+                <resourceModel>tommy_debuginfo_resource</resourceModel>
+            </tommy_debuginfo>
+            <tommy_debuginfo_resource>
+                <class>Tommy_DebugInfo_Model_Resource</class>
+                <entities>
+                    <log>
+                        <table>tommy_debuginfo_log</table>
+                    </log>
+                </entities>
+            </tommy_debuginfo_resource>
+        </models>
     </global>
     <frontend>
 		<routers>

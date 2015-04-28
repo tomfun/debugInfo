@@ -60,7 +60,11 @@ jQuery(function ($) {
                     if (diff < 0.1) {
                         diffStyles = 'color: #990000; font-weight: bolder;';
                     } else {
-                        diffStyles = 'color: #ff0000; font-weight: bolder;';
+                        if (diff > 5) {
+                            diffStyles = 'color: #ff0000; font-weight: bolder; text-decoration: underline;';
+                        } else {
+                            diffStyles = 'color: #ff0000; font-weight: bolder;';
+                        }
                     }
                 }
             }
@@ -344,6 +348,15 @@ jQuery(function ($) {
                 tooltipBlock.slideUp(500);
         });
     })();
+    $('#debug-info-content-list-container table tr').each(function () {
+        var it = $(this),
+            td = it.find('td:nth-child(4)'),
+            num = td.text();
+        num = parseFloat(num);
+        if (!isNaN(num)) {
+            td.attr('style', decorateDiff(num));
+        }
+    });
 //--- no script
 
 });

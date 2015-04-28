@@ -58,7 +58,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         if ($this->getDebugCustomHints() && property_exists('Mage_Core_Block_Abstract', '_switcher')) {
             Mage_Core_Block_Template::$_switcher = Mage::getStoreConfig('debug_info/debug_info/out_rewrite');
         }
-        $this->_enabledSession = (bool) Mage::getStoreConfig('debug_info/debug_info/save_statistic');
+        $this->_enabledSession   = Mage::getStoreConfig('debug_info/debug_info/save_statistic');
         $this->_enabledController = (bool) Mage::getStoreConfig('debug_info/debug_info/frontend_controller');
         $this->_debugCustomHints = (bool) Mage::getStoreConfig('debug_info/debug_info/out_hints');
         $this->_debugCompareHtml = (bool) Mage::getStoreConfig('debug_info/debug_info/out_compare');
@@ -72,7 +72,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
 
     /** @return bool|null */
     public function getEnabledSession() {
-        return $this->_enabledSession;
+        return $this->_enabledSession != Tommy_DebugInfo_Model_SourceConfig::DISABLED;
     }
 
     /** @return bool|null */
@@ -186,7 +186,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     public function flushSessionData() {
-        if (!$this->_enabledSession) {
+        if (!$this->getEnabledSession()) {
             return;
         }
         $data = array(
@@ -225,13 +225,18 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             }
             $session['max-time'] = $perfMax;
         }
-
-        $sessions = $this->loadFromCache(self::SESSION_KEY);
-        if (!$sessions || !count($sessions)) {
-            $sessions = array();
+        if (Tommy_DebugInfo_Model_SourceConfig::CACHE == $this->_enabledSession) {
+            $sessions = $this->loadFromCache(self::SESSION_KEY);
+            if (!$sessions) {
+                $sessions = array();
+            }
+            $sessions[] = $session;
+            $this->saveInCache($sessions, self::SESSION_KEY, $this->_sessionTags);
+        } elseif (Tommy_DebugInfo_Model_SourceConfig::DB == $this->_enabledSession) {
+            $model = Mage::getModel('tommy_debuginfo/log');
+            $model->setData($session);
+            $model->save();
         }
-        $sessions[] = $session;
-        $this->saveInCache($sessions, self::SESSION_KEY, $this->_sessionTags);
         $session['data'] = $data;
         $this->saveInCache($session, self::SESSION_KEY . $session['id'], $this->_sessionTags);
     }
@@ -320,8 +325,15 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
      * @param bool $disableHtml
      */
     public function listSessionFrontend($disableHtml = false) {
-        $sessions = $this->loadFromCache(self::SESSION_KEY);
-        if (!$sessions || !count($sessions)) {
+        if (Tommy_DebugInfo_Model_SourceConfig::CACHE == $this->_enabledSession) {
+            $sessions = $this->loadFromCache(self::SESSION_KEY);
+        } elseif (Tommy_DebugInfo_Model_SourceConfig::DB == $this->_enabledSession) {
+            $collection = Mage::getModel('tommy_debuginfo/log')->getCollection();
+            $sessions = array_map(function (Varien_Object $v) {
+                return $v->getData();
+            }, $collection->getItems());
+        }
+        if (!isset($sessions) ||!$sessions || !count($sessions)) {
             echo 'empty';
             return;
         }

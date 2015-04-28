@@ -47,7 +47,7 @@
                         <save_statistic>
                             <label>Save statistic in cache</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <source_model>tommy_debuginfo/sourceConfig</source_model>
                             <sort_order>15</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
