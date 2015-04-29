@@ -91,4 +91,5 @@ table.debug-info-content-list .large-url {
 #debug-info-content-list-container {
     max-height: 100%;
     overflow-y: scroll;
+    
 }

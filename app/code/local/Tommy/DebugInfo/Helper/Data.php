@@ -30,6 +30,8 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
     protected $_debugCustomHints  = null;
     protected $_sessionId         = null;
     protected $_sessionTags       = array('debug_data');
+    protected $_uniqueAgain       = array();
+    protected $_uniquePostfix     = '_a_';
 
     /** @var bool Using cache flag */
     protected $_useCache = true;
@@ -89,11 +91,34 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Postfix to modify unique key in performance
+     * If postfix empty - no auto add to unique performance log (they will reset)
+     * @param string $postFix
+     */
+    public function setAutoUniquePostfix($postFix = '_a_') {
+        $this->_uniquePostfix = (string)$postFix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAutoUniquePostfix() {
+        return $this->_uniquePostfix;
+    }
+
+    /**
      * @param string $unique
      * @param string $label
      * @param null   $microTime
      */
     public function addPerformanceLog($unique, $label = 'all', $microTime = null) {
+        if ($this->_uniquePostfix && $label === 'all' && isset($this->_performance[$unique][$label])) {
+            $this->_uniqueAgain[$unique] = isset($this->_uniqueAgain[$unique]) ? $this->_uniqueAgain[$unique] + 1 : 2;
+        }
+        if ($this->_uniquePostfix && isset($this->_uniqueAgain[$unique])) {
+            $unique = $unique . $this->_uniquePostfix . $this->_uniqueAgain[$unique];
+        }
+
         if (!isset($this->_performance[$unique])) {
             $this->_performance[$unique] = array();
         }
@@ -121,7 +146,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
      * @param int                $jsonOptions
      * @throws Exception
      */
-    public function addDirectOutput($data, $varName = '', $depth = 10, $jsonOptions = 0) {
+    public function addDirectOutput($data, $varName = '', $exportOrSerialize = true, $depth = 10, $jsonOptions = 0) {
         //array_column()
         if ($varName && count($this->_directOutput) && Mage::getIsDeveloperMode()) {
             $collision = array_filter($this->_directOutput,
@@ -132,12 +157,18 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
                 throw new Exception('This variable name already present in output');
             }
         }
-        $this->_directOutput[] = array(
+        $res = array(
             'varName' => $varName ? $varName : false,
             'object'  => json_encode($data, $jsonOptions, $depth),
             'error' => $this->translateJsonError(),
-            'export' => var_export($data, true),
         );
+        if ($exportOrSerialize) {
+            $res['export'] = @var_export($data, true);
+        } else {
+            $res['export'] = @serialize($data);
+        }
+
+        $this->_directOutput[] = $res;
     }
 
     /**
@@ -185,6 +216,23 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_sessionId;
     }
 
+    public function getSqlProfiler($connectionNames = array()) {
+        /** @var Mage_Core_Model_Resource $coreResource */
+        $coreResource = Mage::getSingleton('core/resource');
+        $connectionRead = $coreResource->getConnection($coreResource::DEFAULT_READ_RESOURCE);
+        $connectionWrite = $coreResource->getConnection($coreResource::DEFAULT_WRITE_RESOURCE);
+        $connectionSetup = $coreResource->getConnection($coreResource::DEFAULT_SETUP_RESOURCE);
+        $res = array(
+            'sqlRead'        => Varien_Profiler::getSqlProfiler($connectionRead),
+            'sqlWrite'        => Varien_Profiler::getSqlProfiler($connectionWrite),
+            'sqlSetup'        => Varien_Profiler::getSqlProfiler($connectionSetup),
+        );
+        foreach ($connectionNames as $name) {
+            $res['sql_' . $name] = Varien_Profiler::getSqlProfiler($name);
+        }
+        return $res;
+    }
+
     public function flushSessionData() {
         if (!$this->getEnabledSession()) {
             return;
@@ -195,6 +243,7 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             '_debugOutput'  => $this->_debugOutput,
             '_directOutput' => $this->_directOutput,
             'timers'        => Varien_Profiler::getTimers(),
+            'sqlProfiler'   => $this->getSqlProfiler(),
         );
         /** @var Mage_Customer_Model_Session $modelSession */
         $modelSession = Mage::getSingleton('customer/session');
@@ -280,11 +329,14 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             $showInFrontend = $showInFrontend
                 && ($showJs || ($paramForce && strpos($magentoCurrentUrl, $paramForce) !== false));
             if ($showInFrontend) {
-                $this->viewDebugDataFrontend(self::$_blocksInfo,
-                                             $this->_performance,
-                                             $this->_debugOutput,
-                                             $this->_directOutput,
-                                             Varien_Profiler::getTimers());
+                $this->viewDebugDataFrontend(
+                    self::$_blocksInfo,
+                    $this->_performance,
+                    $this->_debugOutput,
+                    $this->_directOutput,
+                    Varien_Profiler::getTimers(),
+                    $this->getSqlProfiler()
+                );
             }
         }
         $this->flushSessionData();
@@ -312,26 +364,48 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
         echo '<a href="' . Mage::getUrl(self::FRONT_NAME) . '">l i s t</a><hr/>';
         $this->listSessionFrontend(true);
         echo '<hr/><h2>' . $session['name'] . '&nbsp;' . $session['url'] . '</h2>';
-        $this->viewDebugDataFrontend($data['blocksInfo'],
-                                     $data['performance'],
-                                     $data['_debugOutput'],
-                                     $data['_directOutput'],
-                                     $data['timers']);
+        $this->viewDebugDataFrontend(
+            $data['blocksInfo'],
+            $data['performance'],
+            $data['_debugOutput'],
+            $data['_directOutput'],
+            $data['timers'],
+            $data['sqlProfiler']
+        );
         echo '</body></html>';
     }
 
     /**
      * Render html list of saved debug data
      * @param bool $disableHtml
+     * @param bool|float $from
+     * @param bool|float $to
      */
-    public function listSessionFrontend($disableHtml = false) {
+    public function listSessionFrontend($disableHtml = false, $from = false, $to = false) {
         if (Tommy_DebugInfo_Model_SourceConfig::CACHE == $this->_enabledSession) {
             $sessions = $this->loadFromCache(self::SESSION_KEY);
         } elseif (Tommy_DebugInfo_Model_SourceConfig::DB == $this->_enabledSession) {
+            /** @var Tommy_DebugInfo_Model_Resource_Log_Collection $collection */
             $collection = Mage::getModel('tommy_debuginfo/log')->getCollection();
+            if ($from) {
+                $collection->from($from);
+            }
+            if ($to) {
+                $collection->to($to);
+            }
             $sessions = array_map(function (Varien_Object $v) {
                 return $v->getData();
             }, $collection->getItems());
+            if ($from) {
+                $collection = Mage::getModel('tommy_debuginfo/log')->getCollection();
+                $collection->addFieldToFilter('id', array('lt' => $from));
+                $beforeCount = $collection->getSize();
+            }
+            if ($to) {
+                $collection = Mage::getModel('tommy_debuginfo/log')->getCollection();
+                $collection->addFieldToFilter('id', array('gt' => $to));
+                $afterCount = $collection->getSize();
+            }
         }
         if (!isset($sessions) ||!$sessions || !count($sessions)) {
             echo 'empty';
@@ -357,7 +431,14 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             . '</tr>';
         }
         $html .= '</table>';
-        if ($disableHtml) {
+        if (isset($beforeCount)) {
+            $html .= '<span> before count: ' . $beforeCount . '</span>';
+        }
+        if (isset($afterCount)) {
+            $html .= '<span> after count: ' . $afterCount . '</span>';
+        }
+        $html .= '</div>';
+        if (!$disableHtml) {
             $html .= '</body></html></div>';
         }
         echo $html;
@@ -369,8 +450,9 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
      * @param $log
      * @param $direct
      * @param $timers
+     * @param array $sqlProfiler
      */
-    public function viewDebugDataFrontend($blocksId, $performance, $log, $direct, $timers) {
+    public function viewDebugDataFrontend($blocksId, $performance, $log, $direct, $timers, $sqlProfiler = array()) {
         echo '<script type="text/javascript">debugInfoIds = '
             . Zend_Json::encode($blocksId) . ';'
             . 'debugInfoPerformance = '
@@ -380,7 +462,9 @@ class Tommy_DebugInfo_Helper_Data extends Mage_Core_Helper_Abstract
             . 'debugDirectOutLog = '
             . Zend_Json::encode($direct) . ';'
             . 'debugInfoProfiler = '
-            . Zend_Json::encode($timers) . ';
+            . Zend_Json::encode($timers) . ';'
+            . 'debugInfoSql = '
+            . Zend_Json::encode($sqlProfiler) . ';
                      </script>';
         echo '<script type="text/javascript" src="/debug-performance.js"></script>';
     }

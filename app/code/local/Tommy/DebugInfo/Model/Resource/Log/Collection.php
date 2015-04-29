@@ -26,4 +26,18 @@ class Tommy_DebugInfo_Model_Resource_Log_Collection extends Mage_Core_Model_Reso
     protected function _construct() {
         $this->_init('tommy_debuginfo/log');
     }
+
+    /**
+     * @param float $from
+     */
+    public function from($from) {
+        $this->getSelect()->where('id >= ' . (string)(float)$from);
+    }
+
+    /**
+     * @param float $to
+     */
+    public function to($to) {
+        $this->getSelect()->where('id <= ' . (string)(float)$to);
+    }
 }

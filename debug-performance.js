@@ -357,6 +357,19 @@ jQuery(function ($) {
             td.attr('style', decorateDiff(num));
         }
     });
+    var sqlProfilerHandler = function (sqlProfiler) {
+        var container = overallInfo.append('<div class="debugInfoSql"></div>');
+        for(var name in sqlProfiler) {
+            if (!sqlProfiler.hasOwnProperty(name)) {
+                continue;
+            }
+            var profiler = sqlProfiler[name];
+            container.append(profiler);
+        }
+    };
+    if (window.debugInfoSql != undefined) {
+        sqlProfilerHandler(debugInfoSql);
+    }
 //--- no script
 
 });

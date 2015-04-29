@@ -22,7 +22,10 @@ class Tommy_DebugInfo_IndexController extends Mage_Core_Controller_Front_Action
         if (!$helper->getEnabledSession()) {
             echo ' enable session in admin panel';
         }
-        $helper->listSessionFrontend();
+        $req = $this->getRequest();
+        $from = $req->getParam('from');
+        $to = $req->getParam('to');
+        $helper->listSessionFrontend(false, $from, $to);
     }
 
     public function viewAction() {
